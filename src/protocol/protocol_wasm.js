@@ -33,32 +33,6 @@ const utf8Decoder = new TextDecoder();
 
 const utf8Encoder = new TextEncoder();
 
-let utf8EncodedLen = 0;
-function utf8Encode(s, realloc, memory) {
-  if (typeof s !== 'string') throw new TypeError('expected a string');
-  if (s.length === 0) {
-    utf8EncodedLen = 0;
-    return 1;
-  }
-  let allocLen = 0;
-  let ptr = 0;
-  let writtenTotal = 0;
-  while (s.length > 0) {
-    ptr = realloc(ptr, allocLen, 1, allocLen + s.length);
-    allocLen += s.length;
-    const { read, written } = utf8Encoder.encodeInto(
-    s,
-    new Uint8Array(memory.buffer, ptr + writtenTotal, allocLen - writtenTotal),
-    );
-    writtenTotal += written;
-    s = s.slice(read);
-  }
-  if (allocLen > writtenTotal)
-  ptr = realloc(ptr, allocLen, 1, writtenTotal);
-  utf8EncodedLen = writtenTotal;
-  return ptr;
-}
-
 function myEncode(s, realloc, memory) {
   let encodedLen
   if (typeof s !== 'string') throw new TypeError('expected a string');
@@ -83,6 +57,32 @@ function myEncode(s, realloc, memory) {
   ptr = realloc(ptr, allocLen, 1, writtenTotal);
   encodedLen = writtenTotal;
   return {ptr, encodedLen};
+}
+
+let utf8EncodedLen = 0;
+function utf8Encode(s, realloc, memory) {
+  if (typeof s !== 'string') throw new TypeError('expected a string');
+  if (s.length === 0) {
+    utf8EncodedLen = 0;
+    return 1;
+  }
+  let allocLen = 0;
+  let ptr = 0;
+  let writtenTotal = 0;
+  while (s.length > 0) {
+    ptr = realloc(ptr, allocLen, 1, allocLen + s.length);
+    allocLen += s.length;
+    const { read, written } = utf8Encoder.encodeInto(
+    s,
+    new Uint8Array(memory.buffer, ptr + writtenTotal, allocLen - writtenTotal),
+    );
+    writtenTotal += written;
+    s = s.slice(read);
+  }
+  if (allocLen > writtenTotal)
+  ptr = realloc(ptr, allocLen, 1, writtenTotal);
+  utf8EncodedLen = writtenTotal;
+  return ptr;
 }
 
 function throwUninitialized() {
@@ -884,17 +884,16 @@ const protocol = {
   proveInclusion(arg0, arg1, arg2) {
     if (!_initialized) throwUninitialized();
     const {log: v0_0, map: v0_1 } = arg0;
-    const val1 = myEncode(v0_0, realloc1, memory0);
+    const var1 = myEncode(v0_0, realloc1, memory0);
     const len1 = utf8EncodedLen;
-    const val2 = myEncode(v0_1, realloc1, memory0);
+    const var2 = myEncode(v0_1, realloc1, memory0);
     const len2 = utf8EncodedLen;
     const {logRoot: v3_0, logLength: v3_1, mapRoot: v3_2 } = arg1;
-    const val4 = myEncode(v3_0, realloc1, memory0);
+    const var4 = myEncode(v3_0, realloc1, memory0);
     const len4 = utf8EncodedLen;
-    const val5 = myEncode(v3_2, realloc1, memory0);
+    const var5 = myEncode(v3_2, realloc1, memory0);
     const len5 = utf8EncodedLen;
     const vec9 = arg2;
-    console.log({val1, val2, val4, val5})
     const len9 = vec9.length;
     const result9 = realloc1(0, 0, 4, len9 * 16);
     for (let i = 0; i < vec9.length; i++) {
@@ -909,7 +908,7 @@ const protocol = {
       dataView(memory0).setInt32(base + 12, len8, true);
       dataView(memory0).setInt32(base + 8, ptr8, true);
     }
-    exports1['protocol#prove-inclusion'](val1.ptr, val1.encodedLen, val2.ptr, val2.encodedLen, val4.ptr, val4.encodedLen, toUint32(v3_1), val5.ptr, val5.encodedLen, result9, len9);
+    exports1['protocol#prove-inclusion'](var1.ptr, var1.encodedLen, var2.ptr, var2.encodedLen, var4.ptr, var4.encodedLen, toUint32(v3_1), var5.ptr, var5.encodedLen, result9, len9);
   },
   
 };
